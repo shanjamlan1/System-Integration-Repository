@@ -3,8 +3,8 @@
 require_once "config.php";
  
 // Define variables and initialize with empty values
-$name = $address = $salary = "";
-$name_err = $address_err = $salary_err = "";
+$name = $address = $birthdate = $salary = "";
+$name_err = $address_err = $birthdate_err = $salary_err = "";
  
 // Processing form data when form is submitted
 if($_SERVER["REQUEST_METHOD"] == "POST"){
@@ -26,6 +26,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         $address = $input_address;
     }
     
+    // Validate birthdate
+    $input_birthdate = trim($_POST["birthdate"]);
+    if(empty($input_birthdate)){
+        $birthdate_err = "Please enter a birthdate.";     
+    } else{
+        $birthdate = $input_birthdate;
+    }
+
     // Validate salary
     $input_salary = trim($_POST["salary"]);
     if(empty($input_salary)){
@@ -37,17 +45,18 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     }
     
     // Check input errors before inserting in database
-    if(empty($name_err) && empty($address_err) && empty($salary_err)){
+    if(empty($name_err) && empty($address_err) && empty($birthdate_err) && empty($salary_err)){
         // Prepare an insert statement
-        $sql = "INSERT INTO employees (name, address, salary) VALUES (?, ?, ?)";
+        $sql = "INSERT INTO employees (name, address, birthdate, salary) VALUES (?, ?, ?,?)";
          
         if($stmt = mysqli_prepare($link, $sql)){
             // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "sss", $param_name, $param_address, $param_salary);
+            mysqli_stmt_bind_param($stmt, "ssss", $param_name, $param_address, $param_birthdate, $param_salary);
             
             // Set parameters
             $param_name = $name;
             $param_address = $address;
+            $param_birthdate = $birthdate;
             $param_salary = $salary;
             
             // Attempt to execute the prepared statement
@@ -101,6 +110,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                             <label>Address</label>
                             <textarea name="address" class="form-control"><?php echo $address; ?></textarea>
                             <span class="help-block"><?php echo $address_err;?></span>
+                        </div>
+                        <div class="form-group <?php echo (!empty($birthdate_err)) ? 'has-error' : ''; ?>">
+                            <label>Birthdate</label>
+                            <input type="date" name="birthdate" class="form-control" value="<?php echo $birthdate; ?>">
+                            <span class="help-block"><?php echo $birthdate_err;?></span>
                         </div>
                         <div class="form-group <?php echo (!empty($salary_err)) ? 'has-error' : ''; ?>">
                             <label>Salary</label>
